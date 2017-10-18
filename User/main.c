@@ -178,7 +178,6 @@ int main()
     //u32 RunCount=0;
     //uint32_t Offset=0,u32Temp;
     uint8_t Alarm[7]={0},LastAlarm[7]={0};
-    
     //RN8209C_DEF RN8209Def;
     uint32_t u32Temp;
     PDCMETER_DATA pMeterData=NULL;

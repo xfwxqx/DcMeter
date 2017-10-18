@@ -1523,8 +1523,8 @@ extern uint32_t MeterMinuteData_SaveRecord(__packed uint32_t *pSaveCnt,PDCMETER_
     
     for(i=0;i<DCMETER_LOOP_CNT_MAX;i++){
         MinData.Loop[i].LoopVoltage = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopVoltage*HISTORY_DATA_FACTOR);
-        MinData.Loop[i].LoopCurrent = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopCurrent*HISTORY_DATA_FACTOR);
-        MinData.Loop[i].LoopPower = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopPower*HISTORY_DATA_FACTOR);
+        MinData.Loop[i].LoopCurrent = (int32_t)(pData->AnalogData.LoopAnalog[i].LoopCurrent*HISTORY_DATA_FACTOR);
+        MinData.Loop[i].LoopPower = (int32_t)(pData->AnalogData.LoopAnalog[i].LoopPower*HISTORY_DATA_FACTOR);
         MinData.Loop[i].LoopEnergy = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopEnergy*HISTORY_DATA_FACTOR);
     }
     
@@ -1614,8 +1614,8 @@ extern uint32_t MeterHourData_SaveRecord(__packed uint32_t *pSaveCnt,PDCMETER_DA
     
     for(i=0;i<DCMETER_LOOP_CNT_MAX;i++){
         HourData.Loop[i].LoopVoltage = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopVoltage*HISTORY_DATA_FACTOR);
-        HourData.Loop[i].LoopCurrent = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopCurrent*HISTORY_DATA_FACTOR);
-        HourData.Loop[i].LoopPower = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopPower*HISTORY_DATA_FACTOR);
+        HourData.Loop[i].LoopCurrent = (int32_t)(pData->AnalogData.LoopAnalog[i].LoopCurrent*HISTORY_DATA_FACTOR);
+        HourData.Loop[i].LoopPower = (int32_t)(pData->AnalogData.LoopAnalog[i].LoopPower*HISTORY_DATA_FACTOR);
         HourData.Loop[i].LoopEnergy = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopEnergy*HISTORY_DATA_FACTOR);
     }
     
@@ -1708,8 +1708,8 @@ extern uint32_t MeterMonthData_SaveRecord(__packed uint32_t *pSaveCnt,PDCMETER_D
     
     for(i=0;i<DCMETER_LOOP_CNT_MAX;i++){
         MonthData.Loop[i].LoopVoltage = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopVoltage*HISTORY_DATA_FACTOR);
-        MonthData.Loop[i].LoopCurrent = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopCurrent*HISTORY_DATA_FACTOR);
-        MonthData.Loop[i].LoopPower = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopPower*HISTORY_DATA_FACTOR);
+        MonthData.Loop[i].LoopCurrent = (int32_t)(pData->AnalogData.LoopAnalog[i].LoopCurrent*HISTORY_DATA_FACTOR);
+        MonthData.Loop[i].LoopPower = (int32_t)(pData->AnalogData.LoopAnalog[i].LoopPower*HISTORY_DATA_FACTOR);
         MonthData.Loop[i].LoopEnergy = (uint32_t)(pData->AnalogData.LoopAnalog[i].LoopEnergy*HISTORY_DATA_FACTOR);
     }
     

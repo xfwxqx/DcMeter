@@ -618,11 +618,11 @@ extern uint32_t RN8209C_GetEa(PRN8209C_CALI_PARAM pCali,double *pE)
     
     if(FUNC_RET_SUCC!=RN8209C_GetRegValue(RN8209C_REG_EnergyP2,&u32Temp))
         return FUNC_RET_FAIL;
-    if(FUNC_RET_SUCC!=RN8209C_GetRegValue(RN8209C_REG_PowerPA,(uint32_t *)&s32Temp))
-        return FUNC_RET_FAIL;
+    //if(FUNC_RET_SUCC!=RN8209C_GetRegValue(RN8209C_REG_PowerPA,(uint32_t *)&s32Temp))
+    //    return FUNC_RET_FAIL;
     fTemp = (double)u32Temp;
     fTemp /= 360000.0;
-    fTemp = (s32Temp<0)?-fTemp:fTemp;
+    //fTemp = (s32Temp<0)?-fTemp:fTemp;
     if(pE!=NULL)
         *pE = fTemp;
 
@@ -666,11 +666,11 @@ extern uint32_t RN8209C_GetEb(PRN8209C_CALI_PARAM pCali,double *pE)
     
     if(FUNC_RET_SUCC!=RN8209C_GetRegValue(RN8209C_REG_EnergyD2,&u32Temp))
         return FUNC_RET_FAIL;
-    if(FUNC_RET_SUCC!=RN8209C_GetRegValue(RN8209C_REG_PowerPB,(uint32_t *)&s32Temp))
-        return FUNC_RET_FAIL;
+    //if(FUNC_RET_SUCC!=RN8209C_GetRegValue(RN8209C_REG_PowerPB,(uint32_t *)&s32Temp))
+    //    return FUNC_RET_FAIL;
     fTemp = (double)u32Temp;
     fTemp /= 360000.0;
-    fTemp = (s32Temp<0)?-fTemp:fTemp;
+    //fTemp = (s32Temp<0)?-fTemp:fTemp;
     if(pE!=NULL)
         *pE = fTemp;
     //printf("IARMS:%u\n",u32Temp&0xffffff);
