@@ -144,9 +144,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>448</LineNumber>
+          <LineNumber>1943</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>14640</Address>
+          <Address>20974</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -155,57 +155,21 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>D:\Job\宸ヤ綔鏂囨。\鏃ュ父宸ヤ綔\鍒嗚矾璁￠噺鐩存祦琛?鐩存祦鐢佃〃绗笁鐗?DCM4806_MB_V1.0\User\UserCommon.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\DCM4806_MB\User/UserCommon.c\448</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>535</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>14398</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>D:\Job\宸ヤ綔鏂囨。\鏃ュ父宸ヤ綔\鍒嗚矾璁￠噺鐩存祦琛?鐩存祦鐢佃〃绗笁鐗?DCM4806_MB_V1.0\User\UserCommon.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DCM4806_MB\User/UserCommon.c\535</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>236</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>34730</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>D:\Job\宸ヤ綔鏂囨。\鏃ュ父宸ヤ綔\鍒嗚矾璁￠噺鐩存祦琛?鐩存祦鐢佃〃绗笁鐗?DCM4806_MB_V1.0\User\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DCM4806_MB\User/main.c\236</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>274</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>34920</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>D:\Job\宸ヤ綔鏂囨。\鏃ュ父宸ヤ綔\鍒嗚矾璁￠噺鐩存祦琛?鐩存祦鐢佃〃绗笁鐗?DCM4806_MB_V1.0\User\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\DCM4806_MB\User/main.c\274</Expression>
+          <Expression>\\DCM4806_MB\User/UserCommon.c\1943</Expression>
         </Bp>
       </Breakpoint>
+      <WatchWindow1>
+        <Ww>
+          <count>0</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>AllEnergy</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>EnergyDiff</ItemText>
+        </Ww>
+      </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -228,7 +192,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>0</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
