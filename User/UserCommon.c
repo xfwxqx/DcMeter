@@ -449,7 +449,11 @@ extern uint32_t GetRealTimeData_Loop(uint8_t ChipNum,PDCMETER_DATA pData)
                     else
                         RN8209C_GetIb(&pRn8209c->CaliParam,&Imea);
                     //对于单电源霍尔传感器，其零点是2.5V,如果电流输入通道没有接的话，出现较大的负电流、复功率、电能减少
-                    if(Imea<(-2.0)){
+                    if(Imea<(-2.3)){
+                        pLoopAnalog->LoopCurrent = 0;
+                        pLoopAnalog->LoopPower = 0;
+                        continue;
+                    }else if(Imea>(2.3)){
                         pLoopAnalog->LoopCurrent = 0;
                         pLoopAnalog->LoopPower = 0;
                         continue;

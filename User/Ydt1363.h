@@ -63,7 +63,7 @@
 #define UNIT_TYPE	"DCM4806"	//设备型号
 #define SOFTWARE_VERSION	"0100"	//厂家软件版本
 #define VENDER		"JSYAAO"		//厂家名称
-#define USER_DEFINE_SOFT_VERSION    "20170831"
+#define USER_DEFINE_SOFT_VERSION    "20171019"
 
 #define YDT1363_3_DATABUF_MAX	170  	//电总协议转换数据部分最大长度
 #define DCMETER_LOOP_CNT_MAX	6		//直流电表最大回路数	
