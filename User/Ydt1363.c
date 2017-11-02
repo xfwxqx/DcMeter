@@ -1892,7 +1892,7 @@ extern int32_t ProtocolProc_YDT1363_3_ProtocolPocess(const uint8_t *pRecvBuf, ui
                 //假如是获取设备地址命令
 				if((ProcBuf.CID2 == YDT1363_3_PROTOCAL_CID2_GET_VERSION)&&(ProcBuf.Length==0))
 					return ProtocolProc_YDT1363_3_Make_NoneDataBufFrame(\
-							YDT1363_3_PROTOCAL_RTN_VER_ERROR,pSendBuf,pSendLen);
+							YDT1363_3_PROTOCAL_RTN_NORMAL,pSendBuf,pSendLen);
                 else if((ProcBuf.CID2 == YDT1363_3_PROTOCAL_CID2_GET_DEVICE_ADDR)&&(ProcBuf.Length==0)){
                     return ProtocolProc_YDT1363_3_Make_NoneDataBufFrame(\
                             YDT1363_3_PROTOCAL_RTN_NORMAL,pSendBuf,pSendLen);
