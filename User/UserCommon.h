@@ -452,6 +452,151 @@ extern uint8_t CalibrationHallSensor_ZERO_Repeal(uint8_t LoopNum,PSECTION_CALIBR
 extern float GetSectionCaliRatio(uint32_t LoopNum,float Ival,PSECTION_CALIBRATION pSectCali);
 
 extern uint32_t CheckUserConfig(void);
+
+/*
+关于参数有效性检查操作，参数有效范围说明:
+1、校准时电流通道输入值	[0,10],默认:2.5
+2、校准时电压通道输入值 [0,100],默认:60.0
+3、系统参数 
+		设备地址		(0,255],默认:1
+		波特率			(0,115200],默认:9600
+		分路1用户配置	[0,6],默认:1(USER_ALL)
+		分路2用户配置	[0,6],默认:2(USER_CMCC)
+		分路3用户配置	[0,6],默认:3(USER_CUCC)
+		分路4用户配置	[0,6],默认:4(USER_CTCC)
+		分路5用户配置	[0,6],默认:5(USER_RESERVE1)
+		分路6用户配置	[0,6],默认:6(USER_RESERVE2)
+4、模块参数 
+		直流电压高告警阈值	(0,65],默认:DCMETER_MODULE_PARAM_DC_HIGH_DEFAULT(58)
+		直流电压低告警阈值	(0,60],默认:DCMETER_MODULE_PARAM_DC_LOW_DEFAULT(47)
+		直流一次下电告警阈值(0,60],默认:DCMETER_MODULE_PARAM_DC_FIRST_POWERDOWN_DEFAULT(46)
+		交流停电告警阈值	(0,220],默认:DCMETER_MODULE_PARAM_AC_POWERDOWN_DEFAULT(85)
+5、抄表日 
+		日	(0,31],默认:DCMETER_READING_DAY_DEFAULT(1)
+		时	[0,23],默认:DCMETER_READING_HOUR_DEFAULT(0)
+
+6、CT变比
+		分路1	(0,200],默认:100
+		分路2	(0,200],默认:50
+		分路3	(0,200],默认:50
+		分路4	(0,200],默认:50
+		分路5	(0,200],默认:25
+		分路6	(0,200],默认:25
+7、电能修正系数
+		分路1	[0.8,1.2],默认:1.0
+		分路2	[0.8,1.2],默认:1.0
+		分路3	[0.8,1.2],默认:1.0
+		分路4	[0.8,1.2],默认:1.0
+		分路5	[0.8,1.2],默认:1.0
+		分路6	[0.8,1.2],默认:1.0
+*/
+
+#define CHECK_PARAM_DC_I_MAX(x) do{	\
+	if(((x)<0)||((x)>10)){			\
+		(x) = DC_I_MAX;				\
+	}								\
+}while(0)			
+
+#define CHECK_PARAM_DC_V_MAX(x) do{	\
+		if(((x)<0)||((x)>100)){ 		\
+			(x) = DC_V_MAX; 			\
+		}								\
+	}while(0)
+
+#define CHECK_PARAM_SYS_PARAM(x) do{	\
+			if(((x.Addr)<=0)||((x.Addr)>0xff)){		\
+				(x.Addr) = DCMETER_ADDR; 			\
+			}								\
+			if(((x.Baudrate)<=0)||((x.Baudrate)>115200)){		\
+				(x.Baudrate) = DCMETER_BAUDRATE; 			\
+			}								\
+			if(((x.LoopConfig[0])<USER_NONE)||((x.LoopConfig[0])>USER_RESERVE2)){		\
+				(x.LoopConfig[0]) = USER_ALL; 			\
+			}								\
+			if(((x.LoopConfig[1])<USER_NONE)||((x.LoopConfig[1])>USER_RESERVE2)){		\
+				(x.LoopConfig[1]) = USER_CMCC; 			\
+			}								\
+			if(((x.LoopConfig[2])<USER_NONE)||((x.LoopConfig[2])>USER_RESERVE2)){		\
+				(x.LoopConfig[2]) = USER_CUCC; 			\
+			}								\
+			if(((x.LoopConfig[3])<USER_NONE)||((x.LoopConfig[3])>USER_RESERVE2)){		\
+				(x.LoopConfig[3]) = USER_CTCC; 			\
+			}								\
+			if(((x.LoopConfig[4])<USER_NONE)||((x.LoopConfig[4])>USER_RESERVE2)){		\
+				(x.LoopConfig[4]) = USER_RESERVE1; 			\
+			}								\
+			if(((x.LoopConfig[5])<USER_NONE)||((x.LoopConfig[5])>USER_RESERVE2)){		\
+				(x.LoopConfig[5]) = USER_RESERVE2; 			\
+			}								\
+		}while(0)
+
+#define CHECK_PARAM_MODULE_PARAM(x) do{	\
+						if(((x.DcHighVoltageThreshold)<=0)||((x.DcHighVoltageThreshold)>65)){		\
+							(x.DcHighVoltageThreshold) = (float)DCMETER_MODULE_PARAM_DC_HIGH_DEFAULT/1.0;			\
+						}								\
+						if(((x.DcLowVoltageThreshold)<=0)||((x.DcLowVoltageThreshold)>60)){		\
+							(x.DcLowVoltageThreshold) = (float)DCMETER_MODULE_PARAM_DC_LOW_DEFAULT/1.0;		\
+						}								\
+						if(((x.DcFirstPowerDownThreshold)<=0)||((x.DcFirstPowerDownThreshold)>60)){		\
+							(x.DcFirstPowerDownThreshold) = (float)DCMETER_MODULE_PARAM_DC_FIRST_POWERDOWN_DEFAULT/1.0;			\
+						}								\
+						if(((x.AcPowerCutThreshold)<=0)||((x.AcPowerCutThreshold)>220)){		\
+							(x.AcPowerCutThreshold) = (float)DCMETER_MODULE_PARAM_AC_POWERDOWN_DEFAULT/1.0;			\
+						}								\
+					}while(0)
+
+#define CHECK_PARAM_READING(x) do{	\
+	if(((x.Day)<=0)||((x.Day)>31)){ 		\
+			(x.Day) = DCMETER_READING_DAY_DEFAULT; 			\
+		}											\
+	if((x.Hour)>=24){ 		\
+			(x.Hour) = DCMETER_READING_HOUR_DEFAULT; 			\
+		}                                               \
+	}while(0)
+	
+#define CHECK_PARAM_CT_VALUE(x) do{	\
+	if(((x.CT[0])<=0)||((x.CT[0])>200)){		\
+			(x.CT[0]) = 100;			\
+		}								\
+	if(((x.CT[1])<=0)||((x.CT[1])>200)){		\
+			(x.CT[1]) = 50;			\
+		}								\
+	if(((x.CT[2])<=0)||((x.CT[2])>200)){		\
+			(x.CT[2]) = 50;			\
+		}								\
+	if(((x.CT[3])<=0)||((x.CT[3])>200)){		\
+			(x.CT[3]) = 50;			\
+		}								\
+	if(((x.CT[4])<=0)||((x.CT[4])>200)){		\
+			(x.CT[4]) = 25;			\
+		}								\
+	if(((x.CT[5])<=0)||((x.CT[5])>200)){		\
+			(x.CT[5]) = 25;			\
+		}								\
+	}while(0)
+	
+#define CHECK_PARAM_EGY_RATIO(x) do{	\
+		if(((x.Value[0])<0.8)||((x.Value[0])>1.2)){		\
+				(x.Value[0]) = 1.0;			\
+			}								\
+		if(((x.Value[1])<0.8)||((x.Value[1])>1.2)){		\
+				(x.Value[1]) = 1.0; 		\
+			}								\
+		if(((x.Value[2])<0.8)||((x.Value[2])>1.2)){		\
+				(x.Value[2]) = 1.0; 		\
+			}								\
+		if(((x.Value[3])<0.8)||((x.Value[3])>1.2)){		\
+				(x.Value[3]) = 1.0; 		\
+			}								\
+		if(((x.Value[4])<0.8)||((x.Value[4])>1.2)){		\
+				(x.Value[4]) = 1.0; 		\
+			}								\
+		if(((x.Value[5])<0.8)||((x.Value[5])>1.2)){		\
+				(x.Value[5]) = 1.0; 		\
+			}								\
+		}while(0)
+
+
 //#define DEBUG
 
 #ifdef DEBUG

@@ -1566,6 +1566,8 @@ extern int32_t ProtocolProc_YDT1363_3_ProtocolPocess(const uint8_t *pRecvBuf, ui
                                
                                 gDCMeterData.Cs5460Dc.Imax = (float)SWAP_DWORD(GetDWord(&ProcBuf.DataBuf[0]))/1000.0;
                                 gDCMeterData.Cs5460Dc.Vmax = (float)SWAP_DWORD(GetDWord(&ProcBuf.DataBuf[4]))/1000.0;
+								CHECK_PARAM_DC_I_MAX(gDCMeterData.Cs5460Dc.Imax);
+								CHECK_PARAM_DC_V_MAX(gDCMeterData.Cs5460Dc.Vmax);
                                 MeterData_WaitWriteSucc(1,
                                     (uint8_t *)&gDCMeterData.Cs5460Dc.Imax,
                                     AT24CXX_ADDR_PARAM_CS5460_DC_I,
@@ -1666,6 +1668,7 @@ extern int32_t ProtocolProc_YDT1363_3_ProtocolPocess(const uint8_t *pRecvBuf, ui
                                 for(Count=0;Count<DCMETER_LOOP_CNT_MAX;Count++){
                                     U32Temp = SWAP_DWORD(GetDWord(&ProcBuf.DataBuf[1+4*Count]));
                                     gDCMeterData.CTValue.CT[Count] = (float)U32Temp/100.0;
+									CHECK_PARAM_CT_VALUE(gDCMeterData.CTValue);
                                     MeterData_WaitWriteSucc(1,
                                         (uint8_t *)&gDCMeterData.CTValue.CT[Count],
                                         AT24CXX_ADDR_CT1+5*Count,
@@ -1678,6 +1681,7 @@ extern int32_t ProtocolProc_YDT1363_3_ProtocolPocess(const uint8_t *pRecvBuf, ui
                                 U32Temp = SWAP_DWORD(GetDWord(&ProcBuf.DataBuf[1]));
                                 Count = ProcBuf.DataBuf[0]-1;
                                 gDCMeterData.CTValue.CT[Count] = (float)U32Temp/100.0;
+								CHECK_PARAM_CT_VALUE(gDCMeterData.CTValue);
                                 MeterData_WaitWriteSucc(1,
                                     (uint8_t *)&gDCMeterData.CTValue.CT[Count],
                                     AT24CXX_ADDR_CT1+5*Count,
@@ -1775,7 +1779,7 @@ extern int32_t ProtocolProc_YDT1363_3_ProtocolPocess(const uint8_t *pRecvBuf, ui
 								
 							}
 							break;
-                        //获取6个通道的CT值
+                        //获取6个通道的电能校正系数
 						case YDT1363_3_PROTOCAL_CID2_GET_ENERGY_RATIO:
 							if((ProcBuf.Length==0)){
 								return ProtocolProc_YDT1363_3_Make_EgyRatio(\
@@ -1785,13 +1789,14 @@ extern int32_t ProtocolProc_YDT1363_3_ProtocolPocess(const uint8_t *pRecvBuf, ui
 								
 							}
 							break;
-                        //设置6个通道的CT值
+                        //设置6个通道的电能校正系数
 						case YDT1363_3_PROTOCAL_CID2_SET_ENERGY_RATIO:
                             //设置所有通道
 							if((ProcBuf.Length>=25)&&(ProcBuf.DataBuf[0]==0xff)){
                                 for(Count=0;Count<DCMETER_LOOP_CNT_MAX;Count++){
                                     U32Temp = SWAP_DWORD(GetDWord(&ProcBuf.DataBuf[1+4*Count]));
                                     gDCMeterData.EgyRatio.Value[Count] = (float)U32Temp/1000.0;
+									CHECK_PARAM_EGY_RATIO(gDCMeterData.EgyRatio);
                                     MeterData_WaitWriteSucc(1,
                                         (uint8_t *)&gDCMeterData.EgyRatio.Value[Count],
                                         AT24CXX_ADDR_ENERGY1_RATIO+5*Count,
@@ -1804,6 +1809,7 @@ extern int32_t ProtocolProc_YDT1363_3_ProtocolPocess(const uint8_t *pRecvBuf, ui
                                 U32Temp = SWAP_DWORD(GetDWord(&ProcBuf.DataBuf[1]));
                                 Count = ProcBuf.DataBuf[0]-1;
                                 gDCMeterData.EgyRatio.Value[Count] = (float)U32Temp/1000.0;
+								CHECK_PARAM_EGY_RATIO(gDCMeterData.EgyRatio);
                                 MeterData_WaitWriteSucc(1,
                                     (uint8_t *)&gDCMeterData.EgyRatio.Value[Count],
                                     AT24CXX_ADDR_ENERGY1_RATIO+5*Count,

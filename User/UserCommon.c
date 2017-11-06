@@ -780,6 +780,51 @@ extern uint32_t GetFrequentUpdateData(PDCMETER_DATA pData)
         
     return FUNC_FAILURE;
 }
+extern void Rn8209GetDefaultParam(uint32_t ChipCnt,PRN8209C_DEF pRn8209c)
+{
+	uint32_t i;
+	PRN8209C_DEF pChip=NULL;
+
+	if((pRn8209c==NULL)||(ChipCnt>3))
+		return;
+	
+	pChip = pRn8209c;
+	for(i=0;i<ChipCnt;i++,pChip++){
+		pChip->InitParam.UNION.PARAM_List.SYSCON = 0x0040;
+		pChip->InitParam.UNION.PARAM_List.EMUCON = 0x4063;
+		pChip->InitParam.UNION.PARAM_List.HFConst = 0x0b8e;
+		pChip->InitParam.UNION.PARAM_List.PStart = 0x0060;
+		pChip->InitParam.UNION.PARAM_List.DStart = 0x0060;
+		pChip->InitParam.UNION.PARAM_List.GPQA = 0xf9b9;
+		pChip->InitParam.UNION.PARAM_List.GPQB = 0xf9bc;
+		pChip->InitParam.UNION.PARAM_List.PhsA = 0x0;
+		pChip->InitParam.UNION.PARAM_List.PhsB = 0x0;
+		pChip->InitParam.UNION.PARAM_List.QPhsCal = 0x0;
+		pChip->InitParam.UNION.PARAM_List.APOSA = 0x0;
+		pChip->InitParam.UNION.PARAM_List.APOSB = 0x0;
+		pChip->InitParam.UNION.PARAM_List.RPOSA = 0x0;
+		pChip->InitParam.UNION.PARAM_List.RPOSB = 0x0;
+		pChip->InitParam.UNION.PARAM_List.IARMSOS = 0xff01;
+		pChip->InitParam.UNION.PARAM_List.IBRMSOS = 0xff46;
+		pChip->InitParam.UNION.PARAM_List.IBGain = 0xfafd;
+		pChip->InitParam.UNION.PARAM_List.D2FPL = 0x0;
+		pChip->InitParam.UNION.PARAM_List.D2FPH = 0x0;
+		pChip->InitParam.UNION.PARAM_List.DCIAH = 0xe230;
+		pChip->InitParam.UNION.PARAM_List.DCIBH = 0xe1ce;
+		pChip->InitParam.UNION.PARAM_List.DCUH = 0x0084;
+		pChip->InitParam.UNION.PARAM_List.DCL = 0x01a5;
+		pChip->InitParam.UNION.PARAM_List.EMUCON2 = 0x0030;
+		pChip->InitParam.UNION.PARAM_List.CHKSUM = 0xe9fe;
+		pChip->InitParam.UNION.PARAM_List.RESERVE = 0x0;
+		pChip->CaliParam.Kv = 15.6862869;
+		pChip->CaliParam.Ki = 1.30306137;
+		pChip->CaliParam.Kp = 0.704330921;
+		pChip->CaliParam.Kv = 2.5;
+		pChip->CaliParam.Kv = 60;
+	}
+}
+
+
 
 extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
 { 
@@ -801,7 +846,7 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
             FirstInitDW = AT24CXX_ADDR_FIRST_INIT_DW;
             //AT45DB161_BulkErase();
             
-            MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&FirstInitDW,AT24CXX_ADDR_FIRST_INIT,AT24CXX_ADDR_FIRST_INIT_SIZE);
+            //MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&FirstInitDW,AT24CXX_ADDR_FIRST_INIT,AT24CXX_ADDR_FIRST_INIT_SIZE);
         }
         else
             FirstInitFlag=0;
@@ -812,95 +857,111 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
             do{
                 i++;
                 WatchDogFeed();
-            }while((0 != ReadRn8209CalidataFromFlash(pData->Rn8209c))&&(i<5));
+				Ret = ReadRn8209CalidataFromFlash(pData->Rn8209c);
+            }while((0 != Ret)&&(i<5));
+			if(Ret!=0){
+				Rn8209GetDefaultParam(3,pData->Rn8209c);
+			}
         }
         
         //初始化电表参数
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->Param,AT24CXX_ADDR_PARAM,AT24CXX_ADDR_PARAM_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                memset(pData->Param.Vender,0x20,sizeof(pData->Param.Vender));
-                memcpy(pData->Param.Vender,DCMETER_VENDER,sizeof(DCMETER_VENDER)-1);
-                pData->Param.Addr = DCMETER_ADDR;
-                pData->Param.Baudrate = DCMETER_BAUDRATE;
-                pData->Param.SaveTime = DCMETER_SAVE_TIME_MINUTE;
-                pData->Param.LoopConfig[0] = USER_ALL;
-                pData->Param.LoopConfig[1] = USER_CMCC;
-                pData->Param.LoopConfig[2] = USER_CUCC;
-                pData->Param.LoopConfig[3] = USER_CTCC;
-                pData->Param.LoopConfig[4] = USER_NONE;
-                pData->Param.LoopConfig[5] = USER_NONE;
-                
+            
+            memset(pData->Param.Vender,0x20,sizeof(pData->Param.Vender));
+            memcpy(pData->Param.Vender,DCMETER_VENDER,sizeof(DCMETER_VENDER)-1);
+            pData->Param.Addr = DCMETER_ADDR;
+            pData->Param.Baudrate = DCMETER_BAUDRATE;
+            pData->Param.SaveTime = DCMETER_SAVE_TIME_MINUTE;
+            pData->Param.LoopConfig[0] = USER_ALL;
+            pData->Param.LoopConfig[1] = USER_CMCC;
+            pData->Param.LoopConfig[2] = USER_CUCC;
+            pData->Param.LoopConfig[3] = USER_CTCC;
+            pData->Param.LoopConfig[4] = USER_NONE;
+            pData->Param.LoopConfig[5] = USER_NONE;
+				
+           	if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->Param,AT24CXX_ADDR_PARAM,AT24CXX_ADDR_PARAM_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
         }
+		CHECK_PARAM_SYS_PARAM(pData->Param);
         WatchDogFeed();
         //初始化电表直流电压校准最大值和电流最大值
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->Cs5460Dc.Imax,AT24CXX_ADDR_PARAM_CS5460_DC_I,\
                     AT24CXX_ADDR_PARAM_CS5460_DC_I_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->Cs5460Dc.Imax = DC_I_MAX;
+            
+            pData->Cs5460Dc.Imax = DC_I_MAX;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->Cs5460Dc.Imax,AT24CXX_ADDR_PARAM_CS5460_DC_I,\
                         AT24CXX_ADDR_PARAM_CS5460_DC_I_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
         }
+		CHECK_PARAM_DC_I_MAX(pData->Cs5460Dc.Imax);
+		
         WatchDogFeed();
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->Cs5460Dc.Vmax,AT24CXX_ADDR_PARAM_CS5460_DC_V,\
                     AT24CXX_ADDR_PARAM_CS5460_DC_V_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->Cs5460Dc.Vmax = DC_V_MAX;
+            
+            pData->Cs5460Dc.Vmax = DC_V_MAX;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->Cs5460Dc.Vmax,AT24CXX_ADDR_PARAM_CS5460_DC_V,\
                         AT24CXX_ADDR_PARAM_CS5460_DC_V_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
         }
+		CHECK_PARAM_DC_V_MAX(pData->Cs5460Dc.Vmax);
         WatchDogFeed();
         //初始化模块参数
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->ModuleParam,AT24CXX_ADDR_MODULE_PARAM,\
                     AT24CXX_ADDR_MODULE_PARAM_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->ModuleParam.DcHighVoltageThreshold = (float)DCMETER_MODULE_PARAM_DC_HIGH_DEFAULT/1.0;
-                pData->ModuleParam.DcLowVoltageThreshold = (float)DCMETER_MODULE_PARAM_DC_LOW_DEFAULT/1.0;
-                pData->ModuleParam.DcFirstPowerDownThreshold = (float)DCMETER_MODULE_PARAM_DC_FIRST_POWERDOWN_DEFAULT/1.0;
-                pData->ModuleParam.ModuleAlarmThreshold = (float)DCMETER_MODULE_PARAM_MODULE_ALARM_DEFAULT/1.0;
-                pData->ModuleParam.AcPowerCutThreshold = (float)DCMETER_MODULE_PARAM_AC_POWERDOWN_DEFAULT/1.0;
-                pData->ModuleParam.AcVoltageRatio = (float)DCMETER_MODULE_PARAM_AC_VOLTAGE_RATIO_DEFAULT/1.0;
+            
+            pData->ModuleParam.DcHighVoltageThreshold = (float)DCMETER_MODULE_PARAM_DC_HIGH_DEFAULT/1.0;
+            pData->ModuleParam.DcLowVoltageThreshold = (float)DCMETER_MODULE_PARAM_DC_LOW_DEFAULT/1.0;
+            pData->ModuleParam.DcFirstPowerDownThreshold = (float)DCMETER_MODULE_PARAM_DC_FIRST_POWERDOWN_DEFAULT/1.0;
+            pData->ModuleParam.ModuleAlarmThreshold = (float)DCMETER_MODULE_PARAM_MODULE_ALARM_DEFAULT/1.0;
+            pData->ModuleParam.AcPowerCutThreshold = (float)DCMETER_MODULE_PARAM_AC_POWERDOWN_DEFAULT/1.0;
+            pData->ModuleParam.AcVoltageRatio = (float)DCMETER_MODULE_PARAM_AC_VOLTAGE_RATIO_DEFAULT/1.0;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->ModuleParam,AT24CXX_ADDR_MODULE_PARAM, \
                                 AT24CXX_ADDR_MODULE_PARAM_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
         }  
+		CHECK_PARAM_MODULE_PARAM(pData->ModuleParam);
         WatchDogFeed();        
         //初始化模块抄表日
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->Reading,AT24CXX_ADDR_READING,AT24CXX_ADDR_READING_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
+            
                 pData->Reading.Day = DCMETER_READING_DAY_DEFAULT;
                 pData->Reading.Hour = DCMETER_READING_HOUR_DEFAULT;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->Reading,AT24CXX_ADDR_READING,AT24CXX_ADDR_READING_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
         }
+		CHECK_PARAM_READING(pData->Reading);
         WatchDogFeed();
         //初始化各回路CT变比
         for(i=0;i<DCMETER_LOOP_CNT_MAX;i++){
             Addr = AT24CXX_ADDR_CT1+(AT24CXX_ADDR_CT1_SIZE+1)*i;
             Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->CTValue.CT[i],Addr,AT24CXX_ADDR_CT1_SIZE);
             if(Ret != 0){
-                if(FirstInitFlag == 1){
-                    pData->CTValue.CT[i] = 25.0;
+                
+                pData->CTValue.CT[i] = 25.0;
+				if(FirstInitFlag == 1){
                     MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->CTValue.CT[i],Addr,AT24CXX_ADDR_CT1_SIZE);
                 }
                 //printf("%s %d Read Error(Ret=%ld) i=%u\n",__FUNCTION__,__LINE__,Ret,i);
             }
             WatchDogFeed();
         }
-        
+        CHECK_PARAM_CT_VALUE(pData->CTValue);
         
         //初始化FLASH中存储各项数据计数
         Ret = MeterData_WaitReadSucc(UseBackup,
@@ -908,8 +969,10 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
                 AT24CXX_ADDR_ENERGY_CNT,\
                 AT24CXX_ADDR_ENERGY_CNT_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->SaveCnt.EnergyMonthCnt = 0;
+            
+           	pData->SaveCnt.EnergyMonthCnt = 0;
+			
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,
                     (uint8_t *)&pData->SaveCnt.EnergyMonthCnt,\
                     AT24CXX_ADDR_ENERGY_CNT,\
@@ -923,8 +986,9 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
                 AT24CXX_ADDR_HOUR_DATA_CNT,\
                 AT24CXX_ADDR_HOUR_DATA_CNT_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->SaveCnt.HourDataCnt = 0;
+            
+            pData->SaveCnt.HourDataCnt = 0;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,
                     (uint8_t *)&pData->SaveCnt.HourDataCnt,\
                     AT24CXX_ADDR_HOUR_DATA_CNT,\
@@ -938,8 +1002,9 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
                 AT24CXX_ADDR_ALARM_CNT,\
                 AT24CXX_ADDR_ALARM_CNT_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->SaveCnt.EnergyMonthCnt = 0;
+            
+            pData->SaveCnt.EnergyMonthCnt = 0;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,
                     (uint8_t *)&pData->SaveCnt.AlarmCnt,\
                     AT24CXX_ADDR_ALARM_CNT,\
@@ -953,8 +1018,9 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
                 AT24CXX_ADDR_MONTH_DATA_CNT,\
                 AT24CXX_ADDR_MONTH_DATA_CNT_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->SaveCnt.MonthDataCnt = 0;
+            
+            pData->SaveCnt.MonthDataCnt = 0;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,
                     (uint8_t *)&pData->SaveCnt.MonthDataCnt,\
                     AT24CXX_ADDR_MONTH_DATA_CNT,\
@@ -970,8 +1036,9 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->SectCali.CaliCnt[0],
                     AT24CXX_ADDR_SECTION_RANGE_CNT,AT24CXX_ADDR_SECTION_RANGE_CNT_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                memset((void *)&pData->SectCali.CaliCnt[0],0,AT24CXX_ADDR_SECTION_RANGE_CNT_SIZE);
+            
+            memset((void *)&pData->SectCali.CaliCnt[0],0,AT24CXX_ADDR_SECTION_RANGE_CNT_SIZE);
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->SectCali.CaliCnt[0],AT24CXX_ADDR_SECTION_RANGE_CNT,AT24CXX_ADDR_SECTION_RANGE_CNT_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
@@ -980,10 +1047,11 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
         //初始化分段校准参数
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->SectCali.SectCaliDiv[0],AT24CXX_ADDR_SECTION,AT24CXX_ADDR_SECTION_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                for(i=0;i<SECTIONS_MAX;i++)
-                    for(Cnt=0;Cnt<DCMETER_LOOP_CNT_MAX;Cnt++)
-                        pData->SectCali.SectCaliDiv[i].CaliValue[Cnt] = 1*SECTIONS_CALIBRATION_RATIO;
+            
+            for(i=0;i<SECTIONS_MAX;i++)
+                for(Cnt=0;Cnt<DCMETER_LOOP_CNT_MAX;Cnt++)
+                    pData->SectCali.SectCaliDiv[i].CaliValue[Cnt] = 1*SECTIONS_CALIBRATION_RATIO;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->SectCali.SectCaliDiv[0],AT24CXX_ADDR_SECTION,AT24CXX_ADDR_SECTION_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld) i=%u\n",__FUNCTION__,__LINE__,Ret,i);
@@ -992,8 +1060,9 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
         //初始化分段校准范围
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->SectCali.SectRange[0],AT24CXX_ADDR_SECTION_RANGE,AT24CXX_ADDR_SECTION_RANGE_SIZE);
         if(Ret!=0){
-            if(FirstInitFlag == 1){
-                memset(&pData->SectCali.SectRange[0],0,AT24CXX_ADDR_SECTION_RANGE_SIZE);
+            
+            memset(&pData->SectCali.SectRange[0],0,AT24CXX_ADDR_SECTION_RANGE_SIZE);
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->SectCali.SectRange[0],AT24CXX_ADDR_SECTION_RANGE,AT24CXX_ADDR_SECTION_RANGE_SIZE);
             }
         }
@@ -1001,8 +1070,9 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
         //初始化分段校准零点
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->SectCali.SectCaliZero[0],AT24CXX_ADDR_SECTION_ZERO,AT24CXX_ADDR_SECTION_ZERO_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                memset((void *)&pData->SectCali.SectCaliZero[0],0,AT24CXX_ADDR_SECTION_ZERO_SIZE);
+            
+            memset((void *)&pData->SectCali.SectCaliZero[0],0,AT24CXX_ADDR_SECTION_ZERO_SIZE);
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->SectCali.SectCaliZero[0],AT24CXX_ADDR_SECTION_ZERO,AT24CXX_ADDR_SECTION_ZERO_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
@@ -1013,27 +1083,32 @@ extern void MeterDataInit(uint8_t IsInit,PDCMETER_DATA pData)
             Addr = AT24CXX_ADDR_ENERGY1_RATIO+(AT24CXX_ADDR_ENERGY1_RATIO_SIZE+1)*i;
             Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->EgyRatio.Value[i],Addr,AT24CXX_ADDR_ENERGY1_RATIO_SIZE);
             if(Ret != 0){
-                if(FirstInitFlag == 1){
-                    pData->EgyRatio.Value[i] = 1.0;
+                
+                pData->EgyRatio.Value[i] = 1.0;
+				if(FirstInitFlag == 1){
                     MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->EgyRatio.Value[i],Addr,AT24CXX_ADDR_ENERGY1_RATIO_SIZE);
                 }
                 //printf("%s %d Read Error(Ret=%ld) i=%u\n",__FUNCTION__,__LINE__,Ret,i);
             }
             WatchDogFeed();
         }
-        
+        CHECK_PARAM_EGY_RATIO(pData->EgyRatio);
         //初始化ADC校准值
         Ret = MeterData_WaitReadSucc(UseBackup,(uint8_t *)&pData->AdcRatio,AT24CXX_ADDR_ADC_RATIO,AT24CXX_ADDR_ADC_RATIO_SIZE);
         if(Ret != 0){
-            if(FirstInitFlag == 1){
-                pData->AdcRatio.k = 1.0;
-                pData->AdcRatio.b = 0;
+            
+            pData->AdcRatio.k = 1.0;
+            pData->AdcRatio.b = 0;
+			if(FirstInitFlag == 1){
                 MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&pData->AdcRatio,AT24CXX_ADDR_ADC_RATIO,AT24CXX_ADDR_ADC_RATIO_SIZE);
             }
             //printf("%s %d Read Error(Ret=%ld)\n",__FUNCTION__,__LINE__,Ret);
         }
         WatchDogFeed();
-        
+		if(FirstInitFlag == 1){
+            FirstInitDW = AT24CXX_ADDR_FIRST_INIT_DW;
+            MeterData_WaitWriteSucc(UseBackup,(uint8_t *)&FirstInitDW,AT24CXX_ADDR_FIRST_INIT,AT24CXX_ADDR_FIRST_INIT_SIZE);
+		}
         if(FirstInitFlag != 1)
             GetFrequentUpdateData(pData);
      }
